@@ -40,24 +40,46 @@ def main():
         st.subheader(" **Null values in the data**")
         null_val=data.isnull().sum()
         null_val=null_val.reset_index()
-        null_val=null_val.rename(columns={'index':"Col_names"})
+        null_val=null_val.rename(columns={'index':"Col_names",0:"Sum_of_Null_values"})
         st.table(null_val)
-        col_names=data.columns
-        lst=[]
-        le=LabelEncoder()
-        for i in col_names:
-            if len(data[i].unique())<6:
-                lst.append(i)
-        st.write("**There are** ",len(lst)," **Categorical column in the dataset **")
-        for i in lst:
-            st.write("*",i)
-        st.radio("Select Categorical encoding technique",('Label Encoding','One hot encoding'))
-        st.write("Converting Categorical columns into numerical by using LabelEncoder")
-        for i in col_names:
-            if len(data[i].unique())<6:
-                lst.append(i)
-                data[i]=le.fit_transform(data[i])
-        st.table(data.head())
+        count = 0
+        var=0
+        min_val=int((data.shape[0])/2)
+        for i in data.columns:
+            if null_val[null_val['Col_names'] == i]['Sum_of_Null_values'][count] > min_val:
+                cleaned_data=data.drop(labels=[i], axis=1)
+                var=var+1
+            count = count+1
+        if var==data.shape[1]:
+            st.write("Can't proceed furture as it's all columns are containing more than 50% null values")
+        else:
+            if var > 0:
+                st.write("After Droping the columns which has more than 50% **NULL** values")
+                st.table(cleaned_data.head())
+            else:
+                st.write("Since NULL Values are Less than 50% We are not dropping any column")
+            lst = []
+            le = LabelEncoder()
+            names=data.columns
+            target = st.selectbox("Select Column",names)
+            st.write("Target:", "**", target, "**")
+            col_names=[]
+            for i in cleaned_data.columns:
+                if i != target:
+                    col_names.append(i)
+            for i in col_names:
+                if len(data[i].unique()) < 10:
+                    lst.append(i)
+            st.write("**There are** ", len(lst), " **Categorical column in the dataset **")
+            for i in lst:
+                st.write("*", i)
+            st.radio("Select Categorical encoding technique", ('Label Encoding', 'One hot encoding'))
+            st.write("Converting Categorical columns into numerical by using LabelEncoder")
+            for i in col_names:
+                if len(data[i].unique()) < 6:
+                    lst.append(i)
+                    data[i] = le.fit_transform(data[i])
+            st.table(data.head())
 
 
 
