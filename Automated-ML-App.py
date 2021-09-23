@@ -164,7 +164,7 @@ def main():
                 lst = []
                 names = cleaned_data.columns
                 st.write("**Select target column name for Applying ML model**")
-                target = st.selectbox("", names)
+                target = st.selectbox("", names,key="target")
                 st.write("Target:", "**", target, "**")
                 col_names = []
                 for i in cleaned_data.columns:
@@ -180,13 +180,16 @@ def main():
                 encoding_choice = st.radio("",('Label Encoding', 'One hot encoding', "Not Required"))
                 st.write("Converting Categorical columns into numerical by using",encoding_choice)
                 cat_clm_names = lst
-                if encoding_choice == 'Label Encoding':
-                    d = defaultdict(LabelEncoder)
-                    cleaned_data[cat_clm_names] = cleaned_data[cat_clm_names].apply(lambda x: d[x.name].fit_transform(x))
-                elif encoding_choice == 'One hot encoding':
-                    cleaned_data = pd.get_dummies(cleaned_data, columns=cat_clm_names)
-                elif encoding_choice == 'Not Required':
-                    pass
+                if len(lst)>0:
+                    if encoding_choice == 'Label Encoding':
+                        d = defaultdict(LabelEncoder)
+                        cleaned_data[cat_clm_names] = cleaned_data[cat_clm_names].apply(lambda x: d[x.name].fit_transform(x))
+                    elif encoding_choice == 'One hot encoding':
+                        cleaned_data = pd.get_dummies(cleaned_data, columns=cat_clm_names)
+                    elif encoding_choice == 'Not Required':
+                        pass
+                else:
+                    st.write("** As there are no categorical columns in the feature columns Please select Not required as a option in encoding technique**")
                 st.table(cleaned_data.head())
                 st.write("**Data for Visualization:**")
                 st.table(cleaned_data_for_visualization.head())
@@ -247,11 +250,11 @@ def main():
                     st.write(" Shape of y_test = ", values4)
                     st.write("")
 
-                    st.write("** DO you want to apply Scaling to the data: **")
-                    ss = st.radio("", ("Yes", "No"))
+                    st.write("** Do you want to apply Scaling to the data: **")
+                    ss = st.radio("", ("Yes", "No"),key="SS")
                     if ss == "Yes":
                         st.write("** Select which standard scaling you want to use: **")
-                        ss_tech = st.radio("", ("Standard Scalar", "Min Max Scalar"))
+                        ss_tech = st.radio("", ("Standard Scalar", "Min Max Scalar"),key="SS_tech")
                         if ss_tech == "Standard Scalar":
                             meth = StandardScaler()
                             X_train=meth.fit_transform(X_train)
@@ -366,6 +369,10 @@ def main():
                                          np.sqrt(mean_squared_error(y_test, predictions)), "**")
                                 st.write("**", algorithm, "**", " algoritm R2 score", "**",
                                          r2_score(y_test, predictions), "**")
+                                plt.scatter(predictions, y_test, color="violet")
+                                plt.title("Predictions  vs True Values ")
+                                plt.show()
+                                st.pyplot()
                         elif ss_tech=="Min Max Scalar":
                             meth = MinMaxScaler()
                             X_train = meth.fit_transform(X_train)
@@ -487,6 +494,10 @@ def main():
                                          np.sqrt(mean_squared_error(y_test, predictions)), "**")
                                 st.write("**", algorithm, "**", " algoritm R2 score", "**",
                                          r2_score(y_test, predictions), "**")
+                                plt.scatter(predictions, y_test, color="blue")
+                                plt.title("Predictions  vs True Values ")
+                                plt.show()
+                                st.pyplot()
                     elif ss=="No":
                         st.write(
                             "* According to the target Column which you have selected earlier we found that it's a ",
@@ -602,8 +613,10 @@ def main():
                                      np.sqrt(mean_squared_error(y_test, predictions)), "**")
                             st.write("**", algorithm, "**", " algoritm R2 score", "**",
                                      r2_score(y_test, predictions), "**")
-
-
+                            plt.scatter(predictions, y_test, color="yellow")
+                            plt.title("Predictions  vs True Values ")
+                            plt.show()
+                            st.pyplot()
                             # st.write("Plot Predicted values ** v/s ** Actual values")
                             # st.write(sns.lmplot(x=predictions,y=y_test,data=cleaned_data,palette='red'))
                             # st.pyplot()
@@ -615,7 +628,7 @@ def main():
             st.write(''' ***Linkedin*** : https://www.linkedin.com/in/shubham-chitaguppe-2449821a9/''')
             st.write(''' ***Github*** : https://github.com/SHUBHAM-max449''')
             st.markdown(
-                "<h3 style='text-align: center;font-family:sans-serif;font-size:80px;color:#000000;'>Thank you</h3>",
+                "<h3 style='text-align: center;font-family:sans-serif;font-size:60px;color:#000000;'>Thank you</h3>",
                 unsafe_allow_html=True)
 
 
